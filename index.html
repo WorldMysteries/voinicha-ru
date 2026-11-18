@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS 408 · Факсимиле-стенд Рукописи Войнича</title>
+<link href="https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Spectral+SC:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --desk:#161210; --panel:#1c1712; --line:#3a3227;
+  --ui:#cfc3ac; --dim:#8b7f68; --faint:#5f5647;
+  --cin:#93402c; --gold:#8a6d3b;
+  --perg:#e7dab8; --ink:#3b3125; --vink:#41372a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--desk); color:var(--ui);
+  font-family:'Vollkorn',serif; overflow-x:hidden;
+}
+/* мелкий шум стола */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.8 0 0 0 0 0.72 0 0 0 0 0.55 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* мягкий свет лампы над книгой */
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(ellipse 55% 45% at 52% 34%, rgba(255,236,200,.07), rgba(0,0,0,.32) 90%);
+}
+
+/* ── Шапка ─────────────────────────── */
+header{
+  position:relative; z-index:5;
+  display:flex; align-items:baseline; gap:24px;
+  padding:20px 36px 14px; border-bottom:1px solid var(--line);
+}
+.brand{font-family:'Spectral SC',serif; font-weight:700; font-size:17px; letter-spacing:.18em; color:var(--ui)}
+.brand em{font-style:normal; color:var(--cin)}
+.sub{font-size:12.5px; color:var(--dim); font-style:italic; letter-spacing:.02em}
+.tools{margin-left:auto; display:flex; gap:8px; align-items:center}
+.tbtn{
+  display:inline-flex; align-items:center; gap:7px;
+  background:none; border:1px solid var(--line); color:var(--dim);
+  font-family:'Spectral SC',serif; font-size:11.5px; letter-spacing:.12em;
+  padding:7px 12px; cursor:pointer; transition:color .2s,border-color .2s,background .2s;
+}
+.tbtn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tbtn:hover{color:var(--ui); border-color:var(--faint)}
+.tbtn.on{color:var(--ui); background:var(--cin); border-color:var(--cin)}
+.status{
+  font-size:12.5px; color:var(--cin); font-style:italic;
+  opacity:0; transition:opacity .4s; min-width:150px; text-align:right;
+}
+.status.show{opacity:1}
+
+/* ── Композиция ─────────────────────── */
+.wrap{
+  position:relative; z-index:2;
+  display:grid; grid-template-columns:212px 1fr; gap:0;
+  padding:26px 48px 0 36px; max-width:1720px; margin:0 auto;
+}
+/* левая колонка: хронология + глоссы */
+aside{
+  padding:6px 22px 0 6px; border-right:1px solid var(--line);
+}
+aside h3{
+  font-family:'Spectral SC',serif; font-weight:500; font-size:11.5px;
+  letter-spacing:.22em; color:var(--faint); margin-bottom:12px;
+}
+.tl{border-left:1px solid var(--line); padding-left:14px; margin-bottom:30px}
+.tl div{position:relative; padding-bottom:13px; font-size:12.5px; line-height:1.45; color:var(--dim)}
+.tl div::before{
+  content:''; position:absolute; left:-17.5px; top:6px;
+  width:6px; height:6px; border-radius:50%; background:var(--desk); border:1px solid var(--faint);
+}
+.tl div:first-child::before{background:var(--cin); border-color:var(--cin)}
+.tl b{color:var(--ui); font-weight:500; display:block; font-size:13px}
+.gloss{font-size:12.5px; color:var(--dim); line-height:1.5; margin-bottom:10px}
+.gloss i{font-family:'IM Fell English',serif; font-size:13.5px; color:var(--ui); letter-spacing:.06em}
+.note{font-size:11px; color:var(--faint); font-style:italic; line-height:1.5; margin-top:18px}
+.sig{
+  position:fixed; right:14px; top:50%; transform:translateY(-50%);
+  writing-mode:vertical-rl; font-size:10.5px; letter-spacing:.35em;
+  color:var(--faint); font-family:'Spectral SC',serif; z-index:2;
+}
+
+/* ── Сцена с книгой ────────────────── */
+.stage{position:relative; display:flex; flex-direction:column; align-items:center; padding-bottom:8px}
+.book{
+  position:relative; display:flex;
+  height:min(62vh,580px); aspect-ratio:1.5/1;
+  filter:drop-shadow(0 24px 34px rgba(0,0,0,.55));
+}
+.turn{animation:turn .55s ease both}
+@keyframes turn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+.page{
+  position:relative; flex:1; overflow:hidden;
+  background:var(--perg); color:var(--ink);
+}
+.page.left{border-radius:5px 0 0 5px; box-shadow:inset 0 0 42px rgba(96,72,40,.3), inset 0 0 6px rgba(60,40,20,.22)}
+.page.right{border-radius:0 5px 5px 0; box-shadow:inset 0 0 42px rgba(96,72,40,.3), inset 0 0 6px rgba(60,40,20,.22)}
+/* тень корешка */
+.page.left::after{content:''; position:absolute; top:0; bottom:0; right:0; width:74px; pointer-events:none;
+  background:linear-gradient(to left, rgba(58,40,20,.26), rgba(58,40,20,.07) 55%, transparent)}
+.page.right::after{content:''; position:absolute; top:0; bottom:0; left:0; width:74px; pointer-events:none;
+  background:linear-gradient(to right, rgba(58,40,20,.26), rgba(58,40,20,.07) 55%, transparent)}
+/* волокно пергамента */
+.page::before{
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:3;
+  mix-blend-mode:multiply; opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.016' numOctaves='3' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.32 0 0 0 0 0.18 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+.page-inner{position:relative; z-index:2; height:100%; padding:20px 26px 18px; overflow:hidden}
+.stain{position:absolute; border-radius:50%; pointer-events:none; z-index:1;
+  background:radial-gradient(circle, rgba(118,84,38,.15), rgba(118,84,38,0) 70%); filter:blur(2px)}
+.folio-label{
+  position:absolute; top:10px; right:16px; z-index:4;
+  font-family:'Spectral SC',serif; font-size:10px; letter-spacing:.24em; color:#7d6c4d;
+}
+.page.left .folio-label{right:auto; left:16px}
+/* проявление «чернил» при построении */
+.ink-in>*{animation:inkfade .6s ease both}
+@keyframes inkfade{from{opacity:0} to{opacity:1}}
+
+/* содержимое страниц */
+.ru-h{font-family:'Spectral SC',serif; font-weight:700; font-size:17px; letter-spacing:.1em; color:#4c3d2a; margin-bottom:12px}
+.ru{font-size:13.2px; line-height:1.62; color:var(--ink); margin-bottom:10px; text-align:justify}
+.ru i{font-family:'IM Fell English',serif; font-size:14px}
+.vtext{font-family:'IM Fell English',serif; font-size:15.5px; line-height:1.95; letter-spacing:.05em; color:var(--vink); text-align:justify; margin-bottom:8px}
+.w{cursor:default; transition:background .15s}
+.w:hover{background:rgba(147,64,44,.16); box-shadow:0 0 0 2px rgba(147,64,44,.16)}
+.vsep{display:flex; justify-content:center; margin:6px 0}
+.vsep svg{width:14px; height:14px; stroke:#6d5a3c; stroke-width:1.4}
+.vgap{display:flex; gap:8px; margin-right:10px}
+.galcol{float:left; width:26px; margin:4px 10px 4px 0}
+.plantfig{float:left; margin:6px 14px 6px 0}
+.plantfig svg{display:block}
+.legend{font-size:11px; color:#7d6c4d; font-style:italic; line-height:1.5; margin-top:8px; border-top:1px solid rgba(109,90,60,.4); padding-top:7px}
+.clear{clear:both}
+.marginalia{font-family:'IM Fell English',serif; font-style:italic; font-size:14px; color:#6d4a2e; letter-spacing:.04em; transform:rotate(-1.6deg); margin:10px 0}
+.signature{font-family:'IM Fell English',serif; font-style:italic; font-size:15px; color:#4c3d2a; margin-top:4px}
+.small-caps{font-family:'Spectral SC',serif; font-size:10.5px; letter-spacing:.2em; color:#7d6c4d}
+.pig{fill-opacity:.55}
+.pigline{transition:opacity .3s}
+/* режим без пигментов */
+.book.no-pig .pig{fill-opacity:0}
+.book.no-pig .pigline{opacity:0}
+
+/* стрелки перелистывания */
+.edgebtn{
+  position:absolute; top:50%; transform:translateY(-50%);
+  background:none; border:none; cursor:pointer; color:var(--dim);
+  padding:10px; z-index:6; transition:color .2s;
+}
+.edgebtn:hover{color:var(--cin)}
+.edgebtn svg{width:26px; height:26px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round}
+.edgebtn.prev{left:-46px} .edgebtn.next{right:-46px}
+
+/* ── Полка фолио ────────────────────── */
+.shelf{
+  position:relative; z-index:2; display:flex; align-items:center; gap:14px;
+  padding:18px 48px 26px; max-width:1720px; margin:0 auto;
+}
+.shelf-label{font-family:'Spectral SC',serif; font-size:11px; letter-spacing:.2em; color:var(--faint); white-space:nowrap}
+.foliobtns{display:flex; gap:6px; flex-wrap:wrap}
+.fbtn{
+  background:none; border:1px solid var(--line); color:var(--dim);
+  font-family:'IM Fell English',serif; font-size:13px; letter-spacing:.06em;
+  padding:5px 11px; cursor:pointer; transition:all .2s;
+}
+.fbtn:hover{color:var(--ui); border-color:var(--faint)}
+.fbtn.on{color:var(--ui); background:var(--cin); border-color:var(--cin)}
+.fbtn small{display:block; font-family:'Vollkorn',serif; font-style:italic; font-size:9.5px; letter-spacing:.02em; opacity:.75}
+.spread-ind{margin-left:auto; font-size:12.5px; color:var(--dim); font-style:italic; white-space:nowrap}
+
+/* ── Лупа ───────────────────────────── */
+#loupe{
+  position:fixed; width:230px; height:230px; border-radius:50%;
+  overflow:hidden; display:none; z-index:90; pointer-events:none;
+  border:3px solid #7a6134;
+  box-shadow:0 10px 30px rgba(0,0,0,.6), inset 0 0 26px rgba(50,30,10,.35);
+}
+#loupe-view{position:absolute; top:0; left:0; transform-origin:0 0; background:var(--perg)}
+#loupe-view .page-inner{padding:20px 26px 18px}
+#loupe-cap{
+  position:fixed; display:none; z-index:95; pointer-events:none;
+  max-width:280px; background:#211a13; border:1px solid var(--line);
+  color:var(--ui); font-size:12.5px; line-height:1.5; padding:8px 12px;
+  box-shadow:0 8px 22px rgba(0,0,0,.5);
+}
+#loupe-cap i{font-family:'IM Fell English',serif; font-size:14px; color:var(--cin)}
+#loupe-cap .hyp-tag{display:block; font-size:10px; color:var(--faint); font-style:italic; margin-top:3px}
+#tip{
+  position:fixed; display:none; z-index:95; pointer-events:none;
+  max-width:260px; background:#211a13; border:1px solid var(--line);
+  color:var(--ui); font-size:12.5px; line-height:1.5; padding:8px 12px;
+  box-shadow:0 8px 22px rgba(0,0,0,.5);
+}
+#tip i{font-family:'IM Fell English',serif; font-size:14px; color:var(--cin)}
+#tip .hyp-tag{display:block; font-size:10px; color:var(--faint); font-style:italic; margin-top:3px}
+body.louping .page{cursor:crosshair}
+
+/* ── Ящик аппарата ──────────────────── */
+#drawer{
+  position:fixed; top:0; right:0; bottom:0; width:380px; max-width:92vw;
+  background:var(--panel); border-left:1px solid var(--line); z-index:80;
+  transform:translateX(102%); transition:transform .4s cubic-bezier(.6,.1,.2,1);
+  padding:26px 28px; overflow-y:auto;
+}
+#drawer.open{transform:none}
+#drawer h2{font-family:'Spectral SC',serif; font-weight:700; font-size:16px; letter-spacing:.16em; margin-bottom:4px}
+#drawer .dsub{font-size:12px; color:var(--dim); font-style:italic; margin-bottom:18px}
+.dclose{position:absolute; top:20px; right:20px; background:none; border:none; color:var(--dim); cursor:pointer; font-size:20px; line-height:1}
+.dclose:hover{color:var(--cin)}
+.dtabs{display:flex; gap:6px; border-bottom:1px solid var(--line); margin-bottom:16px}
+.dtab{background:none; border:none; color:var(--dim); font-family:'Spectral SC',serif; font-size:11px; letter-spacing:.14em; padding:8px 4px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px}
+.dtab.on{color:var(--ui); border-bottom-color:var(--cin)}
+.dpane{display:none} .dpane.on{display:block}
+.hyp-item{margin-bottom:14px; font-size:13px; line-height:1.55; color:var(--dim)}
+.hyp-item b{color:var(--ui); font-weight:500}
+.hyp-item .who{display:block; font-family:'Spectral SC',serif; font-size:10.5px; letter-spacing:.14em; color:var(--faint); margin-top:2px}
+.marg-item{margin-bottom:16px; font-size:12.5px; color:var(--dim); line-height:1.55}
+.marg-item .lat{font-family:'IM Fell English',serif; font-style:italic; font-size:14px; color:var(--ui); letter-spacing:.04em; display:block; margin-bottom:3px}
+#freqCanvas{width:100%; height:190px; display:block; margin-bottom:8px}
+.freq-note{font-size:11.5px; color:var(--faint); font-style:italic}
+#corpusCount{font-size:13px; color:var(--ui); margin-bottom:10px}
+
+/* ── Адаптив ────────────────────────── */
+@media (max-width:1100px){
+  aside{display:none} .wrap{grid-template-columns:1fr; padding:20px 24px 0}
+  .sig{display:none} header{padding:16px 24px 12px; flex-wrap:wrap}
+  .sub{display:none}
+}
+@media (max-width:760px){
+  .book{height:auto; width:94vw; aspect-ratio:1.1/1}
+  .edgebtn.prev{left:-8px} .edgebtn.next{right:-8px}
+  .tools .tbtn span{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">MS&nbsp;<em>408</em></div>
+  <div class="sub">факсимиле-стенд Рукописи Войнича · глифы переписываются машиной, тайна остаётся при рукописи</div>
+  <div class="tools">
+    <div class="status" id="status"></div>
+    <button class="tbtn" id="btnLoupe"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="M15 15l6 6"/></svg><span>Лупа</span></button>
+    <button class="tbtn on" id="btnPig"><svg viewBox="0 0 24 24"><path d="M12 3c4 6 6.5 9 6.5 12.5A6.5 6.5 0 0 1 5.5 15.5C5.5 12 8 9 12 3z"/></svg><span>Пигменты</span></button>
+    <button class="tbtn" id="btnRewrite"><svg viewBox="0 0 24 24"><path d="M4 20l3.5-1L20 6.5 17.5 4 5 16.5 4 20z"/><path d="M13.5 8l2.5 2.5"/></svg><span>Переписать</span></button>
+    <button class="tbtn" id="btnDrawer"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/></svg><span>Аппарат</span></button>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside>
+    <h3>ХРОНОЛОГИЯ</h3>
+    <div class="tl">
+      <div><b>ок. 1404–1438</b>пергамент и чернила по данным C¹⁴ (Аризона)</div>
+      <div><b>1599</b>подпись Якуша Горчицкого из Тепенца на f1v</div>
+      <div><b>1665/66</b>письмо Иоанна Марци Афанасию Кирхеру</div>
+      <div><b>1912</b>Вилфрид Войнич, вилла Мондрагоне близ Фраскати</div>
+      <div><b>1969</b>Beinecke Library, Йель — шифр MS 408</div>
+      <div><b>2009</b>датирование уточнено; авторство — поныне неизвестно</div>
+    </div>
+    <h3>КАБИНЕТНЫЕ ГЛОССЫ</h3>
+    <div class="gloss"><i>daiin</i> — възм. частица «и», наичастейший глиф корпуса</div>
+    <div class="gloss"><i>qokedy</i> — възм. имя действия, травной настой</div>
+    <div class="gloss"><i>chol</i> — възм. «так, сей» в ряде B</div>
+    <div class="note">Глоссы — кабинетные гипотезы стенда, не атрибуция. Подлинный текст рукописи не расшифрован.</div>
+  </aside>
+
+  <div class="stage">
+    <div class="book" id="book"></div>
+    <button class="edgebtn prev" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="edgebtn next" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</div>
+
+<div class="shelf">
+  <div class="shelf-label">Фолио ·</div>
+  <div class="foliobtns" id="foliobtns"></div>
+  <div class="spread-ind" id="spreadInd"></div>
+</div>
+
+<div class="sig">BEINECKE RARE BOOK &amp; MANUSCRIPT LIBRARY · YALE · MS 408</div>
+
+<div id="loupe"><div id="loupe-view"></div></div>
+<div id="loupe-cap"></div>
+<div id="tip"></div>
+
+<div id="drawer">
+  <button class="dclose" id="dclose">✕</button>
+  <h2>АППАРАТ ИЗДАНИЯ</h2>
+  <div class="dsub">примечания, гипотезы, счёт глифов</div>
+  <div class="dtabs">
+    <button class="dtab on" data-t="hyp">Гипотезы</button>
+    <button class="dtab" data-t="freq">Частоты</button>
+    <button class="dtab" data-t="marg">Маргиналии</button>
+  </div>
+  <div class="dpane on" data-p="hyp">
+    <div class="hyp-item"><b>Уильям Ньюболд, 1921</b> — приписал труд Роджеру Бэкону и «расшифровал» текст через микролигатуры; метод позже признан ошибкой зрения, а не чтения.<span class="who">PEREGRINATIO · ИСТОРИЯ ПОПЫТОК</span></div>
+    <div class="hyp-item"><b>Джон Тилтман, 1967</b> — «скорее всего это шифр наипростейшего рода или стенография; и всё же он не поддаётся».<span class="who">Цит. по лекции в NSA</span></div>
+    <div class="hyp-item"><b>Гордон Рагг, 2004</b> — показал, что карданная решётка способна порождать текст с подобными статистиками: рукопись могла быть и шифром, и шуткой.<span class="who">CRYPTOLOGIA</span></div>
+    <div class="hyp-item"><b>Кёшка Кагле и др., 2013</b> — статистика «воинче́се» ближе к естественным языкам, чем к случайным потокам знаков; о чём именно говорит текст — неизвестно.<span class="who">PLOS ONE</span></div>
+    <div class="hyp-item"><b>Стенд, 2024</b> — текст на разворотах порождается слоговой грамматикой, подслушанной у рукописи: частотные глифы, префиксы qok- и исходы -aiin. Каждый сеанс переписки даёт новый текст.<span class="who">SIMULACRUM · НЕ АТРИБУЦИЯ</span></div>
+  </div>
+  <div class="dpane" data-p="freq">
+    <div id="corpusCount"></div>
+    <canvas id="freqCanvas" width="640" height="380"></canvas>
+    <div class="freq-note">Частотность глифов корпуса текущего сеанса переписки (топ-12). Оригинальная рукопись демонстрирует столь же пологую кривую — признак слоговой, а не буквенной записи.</div>
+  </div>
+  <div class="dpane" data-p="marg">
+    <div class="marg-item"><span class="lat">Jacobj à Tepenece</span>Подпись на f1v. Якуш Горчицкий из Тепенца, императорский алхимик при Рудольфе II — очевидно, владел рукописью в начале XVII века.</div>
+    <div class="marg-item"><span class="lat">michiton oladabas multos te tcer tces</span>Строки на последнем листе (f116v), написанные другой рукой; чтения расходятся даже у палеографов. Иногда видят в них заклинание или пробу пера.</div>
+    <div class="marg-item"><span class="lat">…</span>Письмо Иоанна Марци Кирхеру, 1666: «Книга держит тайну, и я думаю, что она не иначе как при помощи шифра начата; трижды за триста дукатов предлагал я её — и напрасно».</div>
+    <div class="marg-item"><span class="lat">600 ducatis</span>По преданию, Рудольф II выкупил рукопись у неизвестного продавца за шестьсот дукатов, приписывая её Роджеру Бэкону.</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ═══════════ СЛУЧАЙНОСТЬ ═══════════ */
+let SEED = (Math.random()*1e9)|0;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+let R = mulberry32(SEED);
+const rr=(a,b)=>a+R()*(b-a), ri=(a,b)=>Math.floor(rr(a,b+1)), pick=arr=>arr[Math.floor(R()*arr.length)];
+
+/* ═══════════ ГЕНЕРАТОР «ВОИНЧЕСЕ» ═══════════ */
+const COMMON=[['daiin',14],['ol',8],['aiin',6],['shol',6],['chor',5],['chol',5],['qokedy',6],['qokaiin',5],['shedy',5],['chedy',4],['dain',4],['shey',4],['chey',4],['otedy',3],['okedy',3],['qokal',3],['dared',3],['dol',3],['oral',3],['qokeedy',3],['dar',3],['tor',3],['otar',3],['odal',3],['cheky',3],['dam',2],['kody',2],['otchey',2],['opchedy',2],['shckedy',2],['ckaiin',2],['okeol',2],['shokal',2],['qokeey',2],['octhey',2],['sandy',2],['am',2],['ykeeody',1],['shckan',1],['okaldy',1]];
+const ONSET=['q','ch','sh','t','p','k','f','d','r','s','','o','c','qo','cho'];
+const NUC=['a','o','e','y','ai','eo','ee','ea'];
+const CODA=['in','in','in','or','ol','ar','al','edy','ain','aiin','eey','od','ot','am','an','y'];
+const TABLE=COMMON.reduce((s,c)=>s+c[1],0);
+function genWord(){
+  if(R()<.55){ // частотное из таблицы
+    let x=R()*TABLE;
+    for(const[w,n]of COMMON){x-=n; if(x<0)return w}
+    return 'daiin';
+  }
+  let w=pick(ONSET)+pick(NUC);
+  if(R()<.72)w+=pick(CODA);
+  if(R()<.22)w+=pick(ONSET)+pick(NUC)+pick(CODA);
+  return w;
+}
+function genPara(n){
+  const words=[]; for(let i=0;i<n;i++)words.push(genWord());
+  words.forEach(w=>CORPUS.push(w));
+  return `<p class="vtext">${words.map(w=>`<span class="w">${w}</span>`).join(' ')}</p>`;
+}
+let CORPUS=[];
+
+/* кабинетные «гипотезы прочтения» */
+const RULES=[
+  [w=>w==='daiin'||w==='daiiny','наичастейший глиф-«квип»; възм. частица «и» (гип. Фета)'],
+  [w=>/^qok/.test(w),'форма на qok- — възм. глагол или имя действия (гип. Кёрриера)'],
+  [w=>/^sh/.test(w),'ряд sh- — възм. множественность (гип. Ньюболда, снята)'],
+  [w=>/^o[dt]/.test(w),'префикс ot-/od- — възм. предлог «от» (гип. Тилтмана)'],
+  [w=>/edy$/.test(w),'исход -edy — възм. окончание прилагательного'],
+  [w=>/aiin$/.test(w),'исход -aiin — възм. флексия третьего лица'],
+  [w=>/^d[ao]/.test(w),'ряд d- — възм. корень «да-» (гип. Д′Империо)'],
+  [w=>w.length>9,'длинник — възм. составное слово или лигатура'],
+  [w=>/^ch/.test(w),'начало ch- — възм. «так, сей» (гип. стенда)'],
+  [()=>true,'прочтение неизвестно: стенд лишь имитирует поток глифов']
+];
+function hypothesize(w){for(const[t,h]of RULES)if(t(w))return h}
+
+/* ═══════════ SVG-ВИКТОРИНЫ: ЧЕРНИЛА И ПИГМЕНТЫ ═══════════ */
+const INK='#332a1d', GREEN='#5a7a44', BLUE='#46618f', RED='#9c4a35', OCHRE='#b98a3e';
+function smooth(pts){
+  let d=`M ${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for(let i=1;i<pts.length-1;i++){
+    const mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2;
+    d+=` Q ${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)} ${mx.toFixed(1)},${my.toFixed(1)}`;
+  }
+  const l=pts[pts.length-1]; d+=` L ${l[0].toFixed(1)},${l[1].toFixed(1)}`;
+  return d;
+}
+function stemPoints(){
+  const pts=[[150,398]]; let y=398,x=150; const bias=rr(-.45,.45);
+  while(y>78){y-=rr(48,72); x+=(rr(-30,30))+bias*22; pts.push([x,y]);}
+  return pts;
+}
+function pointAt(pts,t){ // t: 0..1 по длине
+  let L=0; const seg=[];
+  for(let i=0;i<pts.length-1;i++){const d=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);seg.push(d);L+=d}
+  let goal=t*L;
+  for(let i=0;i<seg.length;i++){
+    if(goal<=seg[i]){const k=goal/seg[i];
+      return[pts[i][0]+(pts[i+1][0]-pts[i][0])*k, pts[i][1]+(pts[i+1][1]-pts[i][1])*k];}
+    goal-=seg[i];
+  }
+  return pts[pts.length-1];
+}
+function drawLeaf(p,dir,ang,len,color){
+  const tip=[p[0]+Math.cos(ang)*len, p[1]+Math.sin(ang)*len];
+  const n=[Math.cos(ang+Math.PI/2),Math.sin(ang+Math.PI/2)], w=len*.32;
+  const c1=[p[0]+(tip[0]-p[0])*.5+n[0]*w*.5, p[1]+(tip[1]-p[1])*.5+n[1]*w*.5];
+  const c2=[p[0]+(tip[0]-p[0])*.5-n[0]*w*.5, p[1]+(tip[1]-p[1])*.5-n[1]*w*.5];
+  let s=`<path d="M ${p[0]},${p[1]} Q ${c1[0]},${c1[1]} ${tip[0]},${tip[1]} Q ${c2[0]},${c2[1]} ${p[0]},${p[1]} Z" fill="${color}" class="pig" stroke="${INK}" stroke-width="1.2"/>`;
+  // жилки
+  let veins='';
+  for(let k=1;k<=3;k++){
+    const q=[p[0]+(tip[0]-p[0])*(k/4)+n[0]*w*.14*dir, p[1]+(tip[1]-p[1])*(k/4)+n[1]*w*.14*dir];
+    const e=[p[0]+(tip[0]-p[0])*(k/3.4)+n[0]*w*.32*dir, p[1]+(tip[1]-p[1])*(k/3.4)+n[1]*w*.32*dir];
+    veins+=`<path d="M ${q[0]},${q[1]} Q ${(q[0]+e[0])/2},${(q[1]+e[1])/2} ${e[0]},${e[1]}" stroke="${INK}" stroke-width=".7" fill="none"/>`;
+  }
+  s+=`<path d="M ${p[0]},${p[1]} L ${tip[0]},${tip[1]}" stroke="${INK}" stroke-width=".9" fill="none"/>`+veins;
+  return s;
+}
+function drawPlant(){
+  const pts=stemPoints();
+  let s=`<path d="${smooth(pts)}" stroke="${INK}" stroke-width="2" fill="none"/>`;
+  const nl=ri(4,7);
+  for(let i=0;i<nl;i++){
+    const t=rr(.15,.88), p=pointAt(pts,t), dir=i%2?1:-1;
+    const ang=-Math.PI/2+dir*rr(.7,1.15);
+    s+=drawLeaf(p,dir,ang,rr(48,82),GREEN);
+  }
+  const top=pts[pts.length-1];
+  if(R()<.5){ // розетка-цветок
+    s+=`<g transform="translate(${top[0]},${top[1]})">`;
+    for(let i=0;i<8;i++)s+=`<g transform="rotate(${i*45})"><ellipse cx="15" cy="0" rx="12" ry="4.6" fill="${RED}" class="pig" stroke="${INK}" stroke-width="1"/></g>`;
+    s+=`<circle r="5.5" fill="${OCHRE}" class="pig" stroke="${INK}" stroke-width="1.2"/></g>`;
+  }else{ // колос
+    for(let i=0;i<7;i++){
+      const p=pointAt(pts,1-1.05+i*.055), dir=i%2?1:-1;
+      s+=`<ellipse cx="${p[0]+dir*9}" cy="${p[1]-6}" rx="4.5" ry="9" transform="rotate(${dir*24} ${p[0]+dir*9} ${p[1]-6})" fill="${OCHRE}" class="pig" stroke="${INK}" stroke-width="1"/>`;
+    }
+  }
+  // корневище
+  const base=pts[0], nr=ri(3,6);
+  if(R()<.35)s+=`<ellipse cx="${base[0]}" cy="${base[1]+14}" rx="15" ry="21" fill="${OCHRE}" class="pig" stroke="${INK}" stroke-width="1.2"/><path d="M ${base[0]-8},${base[1]-2} Q ${base[0]},${base[1]+6} ${base[0]+8},${base[1]-2} M ${base[0]-9},${base[1]+10} Q ${base[0]},${base[1]+18} ${base[0]+9},${base[1]+10}" stroke="${INK}" stroke-width=".8" fill="none"/>`;
+  for(let i=0;i<nr;i++){
+    const dx=rr(-70,70), len=rr(45,95);
+    s+=`<path d="M ${base[0]},${base[1]+20} Q ${base[0]+dx*.5+rr(-14,14)},${base[1]+20+len*.55} ${base[0]+dx},${base[1]+20+len}" stroke="${INK}" stroke-width="1.1" fill="none"/>`;
+  }
+  return `<svg viewBox="0 0 300 420" width="100%"><g class="pigline">${s}</g></svg>`;
+}
+function drawSun(){
+  let s=`<circle cx="150" cy="150" r="58" fill="${OCHRE}" class="pig" stroke="${INK}" stroke-width="2"/>`;
+  for(let i=0;i<18;i++){
+    const a=i/18*2*Math.PI, x1=150+Math.cos(a)*62,y1=150+Math.sin(a)*62;
+    const zig=Math.sin(a+Math.PI/2)*7, x2=150+Math.cos(a)*102+zig,y2=150+Math.sin(a)*102-zig;
+    s+=`<path d="M ${x1},${y1} Q ${(x1+x2)/2+Math.cos(a+Math.PI/2)*10},${(y1+y2)/2+Math.sin(a+Math.PI/2)*10} ${x2},${y2}" stroke="${INK}" stroke-width="1.4" fill="none" class="pigline"/>`;
+    if(i%3===0)s+=`<circle cx="${150+Math.cos(a)*110+zig}" cy="${150+Math.sin(a)*110-zig}" r="2.6" fill="${INK}" class="pigline"/>`;
+  }
+  // лицо
+  s+=`<path d="M 126,138 Q 136,128 146,138 M 154,138 Q 164,128 174,138" stroke="${INK}" stroke-width="1.6" fill="none"/>
+      <circle cx="136" cy="139" r="2.4" fill="${INK}"/><circle cx="164" cy="139" r="2.4" fill="${INK}"/>
+      <path d="M 150,140 L 148,158 Q 152,162 156,158" stroke="${INK}" stroke-width="1.4" fill="none"/>
+      <path d="M 132,172 Q 141,166 150,172 Q 159,178 168,172" stroke="${INK}" stroke-width="1.6" fill="none"/>
+      <circle cx="126" cy="156" r="1.4" fill="${INK}"/><circle cx="124" cy="162" r="1.4" fill="${INK}"/>
+      <circle cx="174" cy="156" r="1.4" fill="${INK}"/><circle cx="176" cy="162" r="1.4" fill="${INK}"/>`;
+  return `<svg viewBox="0 0 300 300" width="100%"><g class="pigline">${s}</g></svg>`;
+}
+function drawZodiac(){
+  const cx=160,cy=160;
+  let s=`<defs><path id="zring" d="M ${cx-112},${cy} a 112,112 0 1,1 224,0 a 112,112 0 1,1 -224,0"/></defs>
+  <circle cx="${cx}" cy="${cy}" r="140" stroke="${INK}" stroke-width="2" fill="none"/>
+  <circle cx="${cx}" cy="${cy}" r="96" stroke="${INK}" stroke-width="1.4" fill="none"/>
+  <circle cx="${cx}" cy="${cy}" r="30" stroke="${INK}" stroke-width="1.4" fill="none"/>
+  <circle cx="${cx}" cy="${cy}" r="4" fill="${RED}" class="pig"/>`;
+  for(let i=0;i<30;i++){
+    const a=i/30*2*Math.PI;
+    s+=`<line x1="${cx+Math.cos(a)*96}" y1="${cy+Math.sin(a)*96}" x2="${cx+Math.cos(a)*140}" y2="${cy+Math.sin(a)*140}" stroke="${INK}" stroke-width=".9" class="pigline"/>`;
+  }
+  for(let i=0;i<12;i++){ // пиктограммы сектора
+    const a=(i+.5)/12*2*Math.PI, px=cx+Math.cos(a)*66, py=cy+Math.sin(a)*66;
+    if(i%3===0){ // звезда-нимб
+      for(let k=0;k<8;k++){const b=k/8*2*Math.PI;
+        s+=`<line x1="${px+Math.cos(b)*3}" y1="${py+Math.sin(b)*3}" x2="${px+Math.cos(b)*9}" y2="${py+Math.sin(b)*9}" stroke="${INK}" stroke-width="1.1" class="pigline"/>`}
+    }else{ // рыбка
+      s+=`<g transform="translate(${px},${py}) rotate(${a*57.3})"><path d="M -11,0 Q 0,-7 9,0 Q 0,7 -11,0 Z" fill="${BLUE}" class="pig" stroke="${INK}" stroke-width="1"/><path d="M 9,0 L 16,-5 L 16,5 Z" fill="${BLUE}" class="pig" stroke="${INK}" stroke-width="1"/></g>`;
+    }
+  }
+  const words=[]; for(let i=0;i<34;i++)words.push(genWord());
+  s+=`<text font-size="11.5" letter-spacing="3" fill="#41372a" font-family="'IM Fell English',serif"><textPath href="#zring">${words.map(w=>`<tspan class="w">${w} </tspan>`).join('')}</textPath></text>`;
+  return `<svg viewBox="0 0 320 320" width="100%"><g>${s}</g></svg>`;
+}
+function drawFigure(x,y,sc,color,halo){
+  let s=`<g transform="translate(${x},${y}) scale(${sc})" stroke="${color}" stroke-width="1.6" fill="none" stroke-linecap="round" class="pigline">
+    <circle cx="0" cy="-14" r="4.5"/>
+    <path d="M -4.5,-16 A 5 5 0 0 1 4.5,-16" />
+    <path d="M 0,-9.5 L 0,4 M 0,-6 L -8,-13 M 0,-6 L 8,-13"/>
+    <path d="M 0,4 L -5,10 L -3,16 M 0,4 L 5,9 L 6,15"/></g>`;
+  if(halo){for(let k=0;k<6;k++){const b=k/6*2*Math.PI;
+    s+=`<line x1="${x+10+Math.cos(b)*2.5}" y1="${y-20+Math.sin(b)*2.5}" x2="${x+10+Math.cos(b)*6.5}" y2="${y-20+Math.sin(b)*6.5}" stroke="${INK}" stroke-width="1" class="pigline"/>`}}
+  return s;
+}
+function drawBalneo(){
+  let s='';
+  const pipes=[[26,18],[92,10],[160,20],[228,12]];
+  pipes.forEach(([x,y])=>{
+    s+=`<g transform="translate(${x},${y})"><rect width="46" height="64" rx="10" fill="${GREEN}" class="pig" stroke="${INK}" stroke-width="1.6"/>
+    <rect x="16" y="-9" width="14" height="12" rx="3" fill="${GREEN}" class="pig" stroke="${INK}" stroke-width="1.4"/>
+    <path d="M 6,44 Q 23,38 40,44 M 6,52 Q 23,46 40,52" stroke="${INK}" stroke-width=".8" fill="none" stroke-dasharray="3 3" class="pigline"/></g>`;
+  });
+  s+=`<path d="M 72,50 Q 92,60 112,42 M 138,44 Q 160,56 180,42 M 206,46 Q 228,58 248,40" stroke="${INK}" stroke-width="1" fill="none" stroke-dasharray="4 4" class="pigline"/>`;
+  const bowls=[[52,140],[140,128],[228,142]];
+  bowls.forEach(([x,y],i)=>{
+    s+=`<path d="M ${x-34},${y} A 34 26 0 0 0 ${x+34},${y}" fill="none" stroke="${INK}" stroke-width="1.8" class="pigline"/>
+        <path d="M ${x-34},${y} Q ${x},${y+8} ${x+34},${y}" stroke="${INK}" stroke-width="1" fill="none" class="pigline"/>`;
+    s+=drawFigure(x,y-16,1.25, i===1?RED:BLUE, i===0);
+  });
+  s+=drawFigure(96,236,1.1,RED,false)+drawFigure(176,238,1.1,BLUE,true);
+  return `<svg viewBox="0 0 300 260" width="100%"><g>${s}</g></svg>`;
+}
+function drawCosmos(){
+  const cx=170,cy=160;
+  let s=`<circle cx="${cx}" cy="${cy}" r="38" stroke="${INK}" stroke-width="1.8" fill="none"/>
+  <circle cx="${cx}" cy="${cy}" r="6" fill="${OCHRE}" class="pig" stroke="${INK}" stroke-width="1.2"/>`;
+  for(let i=0;i<12;i++){const a=i/12*2*Math.PI;
+    s+=`<circle cx="${cx+Math.cos(a)*24}" cy="${cy+Math.sin(a)*24}" r="2.2" fill="${INK}" class="pigline"/>`}
+  [62,88,112].forEach((r,k)=>{
+    s+=`<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${INK}" stroke-width="1.2" fill="none"/>`;
+    for(let i=0;i<10+k*4;i++){const a=(i+.5)/(10+k*4)*2*Math.PI, px=cx+Math.cos(a)*r, py=cy+Math.sin(a)*r;
+      s+=`<rect x="${px-3}" y="${py-5}" width="6" height="8" fill="none" stroke="${INK}" stroke-width=".9" class="pigline"/>`}
+  });
+  for(let i=0;i<24;i++){
+    const a=i/24*2*Math.PI, x1=cx+Math.cos(a)*114, y1=cy+Math.sin(a)*114;
+    const x2=cx+Math.cos(a)*152, y2=cy+Math.sin(a)*152;
+    const n=[Math.cos(a+Math.PI/2),Math.sin(a+Math.PI/2)];
+    s+=`<path d="M ${x1},${y1} L ${x1+n[0]*5},${y1+n[1]*5} L ${(x1+x2)/2},${(y1+y2)/2} L ${x1-n[0]*5},${y1-n[1]*5} Z L ${x2},${y2}" stroke="${INK}" stroke-width="1.1" fill="none" class="pigline"/>`;
+  }
+  return `<svg viewBox="0 0 340 330" width="100%"><g>${s}</g></svg>`;
+}
+const starSep=()=>`<div class="vsep"><svg viewBox="0 0 20 20"><g class="pigline">${[0,45,90,135].map(a=>`<line x1="10" y1="1" x2="10" y2="19" transform="rotate(${a} 10 10)"/>`).join('')}<circle cx="10" cy="10" r="2.2" fill="${RED}" class="pig" stroke="${INK}" stroke-width=".8"/></g></svg></div>`;
+const galCol=()=>{let s='<div class="galcol"><svg viewBox="0 0 26 74" width="26">';
+  for(let i=0;i<3;i++){const y=6+i*24;
+    s+=`<path d="M 4,${y} Q 13,${y+14} 22,${y} M 13,${y+7} L 13,${y+18}" stroke="${INK}" stroke-width="1.4" fill="none" class="pigline"/><circle cx="13" cy="${y+21}" r="1.8" fill="${INK}" class="pigline"/>`}
+  return s+'</svg></div>'};
+
+/* ═══════════ СТРАНИЦЫ ═══════════ */
+const P=w=>`<span class="w">${w}</span>`;
+const FOLIOS={
+'1r':()=>`
+  <h2 class="ru-h">Обращение к читателю</h2>
+  <p class="ru">19 июля 1912 года Вилфрид Войнич, лондонский книготорговец с Виленщиной в прошлом, поднялся на виллу Мондрагоне близ Фраскати, где иезуиты распродавали старый библиотечный «саркофаг». В одном из ящиков он нашёл книжку в пергаменте: шестьдесят с лишним листов, исписанных <i>voynichese</i> — шрифтом, который не читал ещё никто на свете.</p>
+  <p class="ru">Шесть веков рукопись переходила от Рудольфа II к алхимику Якушу из Тепенца, от Марци к Кирхеру, от неведомых рук — к стеллажу Beinecke в Йеле. Шифры, решётки, анаграммы, микролигатуры — всё разбилось об её строки.</p>
+  ${genPara(ri(22,30))}
+  ${starSep()}
+  ${genPara(ri(14,20))}
+  <p class="ru">Здесь рукопись <i>переписана машиной</i>: глифы порождает слоговая грамматика, подслушанная у самой книги. Кнопка «Переписать» запускает новый сеанс скриптория — и текст выходит иной. Как и подлинник, он отказывается говорить.</p>
+  <div class="legend">Стенд собран по мотивам описаний факсимиле Beinecke MS 408. Вся «воинче́се» на разворотах — имитация потока глифов, не расшифровка.</div>`,
+'1v':()=>`
+  <div class="plantfig" style="width:52%">${drawPlant()}</div>
+  ${genPara(ri(20,28))}
+  ${genPara(ri(16,22))}
+  <div class="clear"></div>
+  ${genPara(ri(18,24))}
+  ${starSep()}
+  ${genPara(ri(10,14))}
+  <div class="legend">f. 1v — травник. Пигменты: зелень медная, охра; корневище выписано одним пером, без отмывки.</div>`,
+'2r':()=>`
+  ${genPara(ri(14,18))}
+  <div class="plantfig" style="width:58%">${drawPlant()}</div>
+  ${genPara(ri(22,30))}
+  ${genPara(ri(18,24))}
+  <div class="clear"></div>
+  ${genPara(ri(12,16))}
+  <div class="legend">f. 2r — травник II. Лист широкояйцевидный, жилкование перистое; цветок — розетка восьмилепестковая.</div>`,
+'2v':()=>`
+  <div class="plantfig" style="width:40%">${drawPlant()}</div>
+  ${genPara(ri(24,32))}
+  <div class="clear"></div>
+  <div class="plantfig" style="width:40%">${drawPlant()}</div>
+  ${genPara(ri(20,26))}
+  <div class="clear"></div>
+  ${starSep()}
+  ${genPara(ri(12,16))}
+  <div class="legend">f. 2v — корневища-усики; в оригинале на этом развороте два растения делят лист пополам.</div>`,
+'3r':()=>`
+  ${genPara(ri(16,20))}
+  <div style="width:72%;margin:6px auto">${drawSun()}</div>
+  ${genPara(ri(18,24))}
+  ${starSep()}
+  ${genPara(ri(12,16))}
+  <div class="legend">f. 3r — астрономия. Солнце с волнистыми лучами и морщинистым лицом; лучи — одним росчерком, с нажимом.</div>`,
+'3v':()=>`
+  ${genPara(ri(10,13))}
+  <div style="width:78%;margin:4px auto">${drawZodiac()}</div>
+  ${genPara(ri(16,22))}
+  ${starSep()}
+  ${genPara(ri(10,14))}
+  <div class="legend">f. 3v — зодиакальное колесо: тридцать делений, в секторах — рыбы и нимбы-звёзды; текст идёт по окружности.</div>`,
+'4r':()=>`
+  ${genPara(ri(12,15))}
+  ${drawBalneo()}
+  ${genPara(ri(20,26))}
+  ${starSep()}
+  ${genPara(ri(12,16))}
+  <div class="legend">f. 4r — «банные» фолио: зелёные сосуды-трубы, чаши с фигурами; у одной из нимф — нимб-звезда.</div>`,
+'4v':()=>`
+  ${['первая','вторая','третья','четвёртая'].map(()=>`
+    ${galCol()}
+    ${genPara(ri(14,20))}
+    ${starSep()}
+  `).join('')}
+  ${galCol()}
+  ${genPara(ri(12,16))}
+  <div class="legend">f. 4v — «рецепты»: поток текста, слева — столбики-галереи глифов, между строк — звёздные разделители.</div>`,
+'5r':()=>`
+  ${genPara(ri(10,13))}
+  <div style="width:74%;margin:4px auto">${drawCosmos()}</div>
+  ${genPara(ri(18,24))}
+  ${starSep()}
+  ${genPara(ri(10,14))}
+  <div class="legend">f. 5r — космологическая розетка: концентрические кольца с зубчатыми башенками, наружу — «сосульки» лучей.</div>`,
+'5v':()=>`
+  <h2 class="ru-h">Колофон</h2>
+  ${genPara(ri(18,24))}
+  ${starSep()}
+  ${genPara(ri(12,16))}
+  <div class="clear"></div>
+  <div class="marginalia">michiton oladabas multos te tcer tces</div>
+  <div class="signature">Jacobj à Tepenece</div>
+  <div class="legend" style="margin-top:14px">f. 5v — последняя страница стенда. Строки латиницей на нижнем листе подлинника (f116v) написаны иной рукой; чтения расходятся даже у палеографов. Конец факсимиле — тайна не кончается.</div>`
+};
+const SPREADS=[['1r','1v'],['2r','2v'],['3r','3v'],['4r','4v'],['5r','5v']];
+const SECTIONS={'1r':'prologus','1v':'herbal','2r':'herbal','2v':'herbal','3r':'astro','3v':'zodiac','4r':'balneo','4v':'recipes','5r':'cosmico','5v':'colophon'};
+let cur=0, sessions=1;
+
+/* ═══════════ ПОСТРОЕНИЕ ═══════════ */
+const book=document.getElementById('book');
+function buildPage(id,side){
+  R=mulberry32((SEED^(id.charCodeAt(0)*7919+id.charCodeAt(1)))>>>0);
+  const el=document.createElement('div');
+  el.className='page '+side; el.dataset.folio=id;
+  el.innerHTML=`<div class="folio-label">folio ${id} · ${SECTIONS[id]}</div>
+    <div class="page-inner ink-in">${FOLIOS[id]()}</div>`;
+  // пятна пергамента
+  for(let i=0;i<ri(2,4);i++){
+    const st=document.createElement('div'); st.className='stain';
+    const sz=rr(50,150);
+    st.style.cssText=`width:${sz}px;height:${sz*rr(.6,1.3)}px;left:${rr(-5,85)}%;top:${rr(-5,85)}%`;
+    el.appendChild(st);
+  }
+  // stagger «проявления чернил»
+  el.querySelectorAll('.page-inner > *').forEach((c,i)=>c.style.animationDelay=(i*55)+'ms');
+  return el;
+}
+function render(idx,animate=true){
+  cur=(idx+SPREADS.length)%SPREADS.length;
+  book.innerHTML='';
+  SPREADS[cur].forEach((id,i)=>book.appendChild(buildPage(id, i?'right':'left')));
+  if(animate){book.classList.remove('turn'); void book.offsetWidth; book.classList.add('turn');}
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('on', b.dataset.f===SPREADS[cur][0]));
+  document.getElementById('spreadInd').textContent=`разворот ${cur+1} из ${SPREADS.length}`;
+  loupeFor=null;
+}
+/* полка */
+const shelf=document.getElementById('foliobtns');
+Object.keys(SECTIONS).forEach(id=>{
+  const b=document.createElement('button');
+  b.className='fbtn'; b.dataset.f=id;
+  b.innerHTML=`${id}<small>${SECTIONS[id]}</small>`;
+  b.onclick=()=>render(Math.floor(SPREADS.findIndex(s=>s.includes(id))/2));
+  shelf.appendChild(b);
+});
+
+/* ═══════════ ЛУПА И ГЛОССЫ ═══════════ */
+const loupe=document.getElementById('loupe'), loupeView=document.getElementById('loupe-view'),
+      loupeCap=document.getElementById('loupe-cap'), tip=document.getElementById('tip');
+let loupeOn=false, loupeFor=null;
+function hypHTML(folio,word){
+  return `<i>${word}</i> — ${hypothesize(word)}<span class="hyp-tag">folio ${folio} · кабинетная гипотеза, не атрибуция</span>`;
+}
+document.addEventListener('mousemove',e=>{
+  if(loupeOn){
+    const page=e.target.closest&&e.target.closest('.page');
+    if(!page){loupe.style.display='none'; loupeCap.style.display='none'; return}
+    const r=page.getBoundingClientRect();
+    if(loupeFor!==page.dataset.folio){
+      loupeFor=page.dataset.folio; loupeView.innerHTML='';
+      const c=page.querySelector('.page-inner').cloneNode(true);
+      loupeView.appendChild(c);
+      loupeView.style.width=r.width+'px'; loupeView.style.height=r.height+'px';
+    }
+    const S=2.4, RAD=115, x=e.clientX-r.left, y=e.clientY-r.top;
+    loupeView.style.transform=`translate(${RAD-S*x}px, ${RAD-S*y}px) scale(${S})`;
+    loupe.style.left=(e.clientX-RAD)+'px'; loupe.style.top=(e.clientY-RAD)+'px';
+    loupe.style.display='block';
+    const w=e.target.closest('.w');
+    if(w){loupeCap.innerHTML=hypHTML(page.dataset.folio,w.textContent);
+      loupeCap.style.left=Math.min(e.clientX-140, innerWidth-300)+'px';
+      loupeCap.style.top=(e.clientY+128)+'px';
+      loupeCap.style.display='block';
+    }else loupeCap.style.display='none';
+    tip.style.display='none';
+  }else{
+    const w=e.target.closest&&e.target.closest('.w');
+    const page=e.target.closest&&e.target.closest('.page');
+    if(w&&page&&!e.target.closest('#drawer')){
+      tip.innerHTML=hypHTML(page.dataset.folio,w.textContent);
+      tip.style.left=Math.min(e.clientX+14, innerWidth-280)+'px';
+      tip.style.top=Math.min(e.clientY+16, innerHeight-90)+'px';
+      tip.style.display='block';
+    }else tip.style.display='none';
+  }
+});
+document.addEventListener('mouseleave',()=>{loupe.style.display='none';tip.style.display='none';loupeCap.style.display='none'});
+
+/* ═══════════ ИНСТРУМЕНТЫ ═══════════ */
+function flashStatus(msg){
+  const s=document.getElementById('status');
+  s.textContent=msg; s.classList.add('show');
+  clearTimeout(s._t); s._t=setTimeout(()=>s.classList.remove('show'),2600);
+}
+document.getElementById('btnLoupe').onclick=e=>{
+  loupeOn=!loupeOn;
+  e.currentTarget.classList.toggle('on',loupeOn);
+  document.body.classList.toggle('louping',loupeOn);
+  if(!loupeOn){loupe.style.display='none';loupeCap.style.display='none'}
+  flashStatus(loupeOn?'лупа поднесена к развороту':'лупа отложена');
+};
+document.getElementById('btnPig').onclick=e=>{
+  book.classList.toggle('no-pig');
+  const off=book.classList.contains('no-pig');
+  e.currentTarget.classList.toggle('on',!off);
+  flashStatus(off?'пигменты сняты — одно чернильное перо':'пигменты возвращены на пергамент');
+};
+document.getElementById('btnRewrite').onclick=()=>{
+  SEED=(Math.random()*1e9)|0; sessions++;
+  CORPUS=[];
+  render(cur);
+  document.getElementById('scriptorCount');
+  flashStatus(`сеанс №${sessions} — глифы перезаписаны, шифр не распознан`);
+};
+const drawer=document.getElementById('drawer');
+document.getElementById('btnDrawer').onclick=()=>{drawer.classList.add('open');drawFreq()};
+document.getElementById('dclose').onclick=()=>drawer.classList.remove('open');
+document.querySelectorAll('.dtab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.dtab').forEach(x=>x.classList.toggle('on',x===t));
+  document.querySelectorAll('.dpane').forEach(p=>p.classList.toggle('on',p.dataset.p===t.dataset.t));
+  if(t.dataset.t==='freq')drawFreq();
+});
+function drawFreq(){
+  const c=document.getElementById('freqCanvas'), g=c.getContext('2d');
+  g.clearRect(0,0,c.width,c.height);
+  const cnt={};
+  CORPUS.join('').split('').forEach(ch=>{if(/[a-z]/.test(ch))cnt[ch]=(cnt[ch]||0)+1});
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  document.getElementById('corpusCount').textContent=`слов в корпусе сеанса: ${CORPUS.length}`;
+  if(!top.length)return;
+  const max=top[0][1], bw=(c.width-60)/top.length, base=c.height-60;
+  top.forEach(([ch,v],i)=>{
+    const h=v/max*(c.height-110);
+    g.fillStyle='#9c4a35'; g.fillRect(40+i*bw, base-h, bw*.62, h);
+    g.strokeStyle='#3a3227'; g.strokeRect(40+i*bw, base-h, bw*.62, h);
+    g.fillStyle='#cfc3ac'; g.font='26px IM Fell English,serif';
+    g.textAlign='center'; g.fillText(ch, 40+i*bw+bw*.31, base+34);
+    g.fillStyle='#8b7f68'; g.font='15px Vollkorn,serif'; g.fillText(v, 40+i*bw+bw*.31, base-h-10);
+  });
+  g.strokeStyle='#3a3227'; g.beginPath(); g.moveTo(30,base); g.lineTo(c.width-10,base); g.stroke();
+}
+
+/* ═══════════ НАВИГАЦИЯ ═══════════ */
+document.getElementById('prevBtn').onclick=()=>render(cur-1);
+document.getElementById('nextBtn').onclick=()=>render(cur+1);
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')render(cur-1);
+  if(e.key==='ArrowRight')render(cur+1);
+});
+let tx=0;
+book.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+book.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>40)render(cur+(dx<0?1:-1));
+},{passive:true});
+
+/* ═══════════ СТАРТ ═══════════ */
+render(0,false);
+</script>
+</body>
+</html>
